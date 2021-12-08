@@ -2,37 +2,17 @@ import express from 'express';
 import { readdir, readJSON } from 'fs-extra';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'path';
+import { MoxxyConfig } from './config';
 import { resolver } from './resolve';
 
-export type ServiceConfig = {
+type ServiceConfig = {
   port: string;
   proxy: {
     host: string;
   };
 };
 
-type ServiceConfigMap = {
-  [key: string]: ServiceConfig;
-};
-
-export const serviceConfigMap: ServiceConfigMap = {};
-
-export async function populateConfig(servicesDir: string) {
-  const services = await readdir(servicesDir);
-
-  // Load all service configs in parallel.
-  const configs = services.map(async (name) => {
-    serviceConfigMap[name] = await readJSON(
-      join(servicesDir, name, 'config.json')
-    );
-  });
-
-  await Promise.all(configs);
-
-  console.log({ serviceConfigMap });
-}
-
-export function initializeApp(name: string, config: ServiceConfig) {
+function initializeApp(name: string, config: ServiceConfig) {
   const { port, proxy } = config;
   const app = express();
 
@@ -54,10 +34,27 @@ export function initializeApp(name: string, config: ServiceConfig) {
   return app;
 }
 
-export async function startServices() {
-  await populateConfig('./moxxy');
+async function loadServiceConfig(
+  name: string,
+  servicesDirectory: string
+): Promise<ServiceConfig> {
+  // TODO: Validate config
+  return await readJSON(join(servicesDirectory, name, 'config.json'));
+}
 
-  const apps = Object.keys(serviceConfigMap).map((service) =>
-    initializeApp(service, serviceConfigMap[service])
+async function startService(name: string, config: MoxxyConfig) {
+  const { servicesDirectory } = config;
+  const serviceConfig = await loadServiceConfig(name, servicesDirectory);
+
+  initializeApp(name, serviceConfig);
+}
+
+export async function startServices(config: MoxxyConfig) {
+  const serviceNames = await readdir(config.servicesDirectory);
+
+  // Initialize services in parallel.
+  await Promise.all(
+    serviceNames.map(async (name) => startService(name, config))
   );
+  console.log('Initialized services.');
 }

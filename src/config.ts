@@ -1,6 +1,6 @@
 import { readJsonSync } from 'fs-extra';
 
-type MoxxyConfig = {
+export type MoxxyConfig = {
   servicesDirectory: string;
 };
 
