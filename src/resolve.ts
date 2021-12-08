@@ -12,10 +12,7 @@ export function fileResolver(routesDirectory: string) {
     const { method, baseUrl } = req;
     console.log(`Resolving ${method.toUpperCase()} ${baseUrl}`);
 
-    const filepath = join(
-      routesDirectory,
-      `${baseUrl}.${method.toLowerCase()}.json`
-    );
+    const filepath = join(routesDirectory, `${baseUrl}.${method.toLowerCase()}.json`);
     console.log({ filepath });
     const exists = await pathExists(filepath);
 
