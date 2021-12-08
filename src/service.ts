@@ -12,11 +12,16 @@ type ServiceConfig = {
   };
 };
 
-function initializeApp(name: string, config: ServiceConfig) {
+function initializeApp(
+  name: string,
+  config: ServiceConfig,
+  moxxyConfig: MoxxyConfig
+) {
   const { port, proxy } = config;
   const app = express();
 
-  app.use('*', resolver(name, config));
+  const routesDirectory = join(moxxyConfig.servicesDirectory, name, 'routes/');
+  app.use('*', resolver(routesDirectory));
 
   if (proxy) {
     app.use(
@@ -42,11 +47,13 @@ async function loadServiceConfig(
   return await readJSON(join(servicesDirectory, name, 'config.json'));
 }
 
-async function startService(name: string, config: MoxxyConfig) {
-  const { servicesDirectory } = config;
-  const serviceConfig = await loadServiceConfig(name, servicesDirectory);
+async function startService(name: string, moxxyConfig: MoxxyConfig) {
+  const serviceConfig = await loadServiceConfig(
+    name,
+    moxxyConfig.servicesDirectory
+  );
 
-  initializeApp(name, serviceConfig);
+  initializeApp(name, serviceConfig, moxxyConfig);
 }
 
 export async function startServices(config: MoxxyConfig) {
