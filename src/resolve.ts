@@ -1,8 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { pathExists, readJson } from 'fs-extra';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'path';
 
-export function resolver(routesDirectory: string) {
+/*
+ * Resolvers are Express middleware that resolve a request to a response.
+ */
+
+export function fileResolver(routesDirectory: string) {
   return async (req: Request, res: Response, next: NextFunction) => {
     const { method, baseUrl } = req;
     console.log(`Resolving ${method.toUpperCase()} ${baseUrl}`);
@@ -20,4 +25,11 @@ export function resolver(routesDirectory: string) {
       next();
     }
   };
+}
+
+export function proxyResolver(host: string) {
+  return createProxyMiddleware({
+    target: host,
+    changeOrigin: true,
+  });
 }

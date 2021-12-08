@@ -1,9 +1,8 @@
 import express from 'express';
 import { readdir, readJSON } from 'fs-extra';
-import { createProxyMiddleware } from 'http-proxy-middleware';
 import { join } from 'path';
 import { MoxxyConfig } from './config';
-import { resolver } from './resolve';
+import { fileResolver, proxyResolver } from './resolve';
 
 type ServiceConfig = {
   port: string;
@@ -21,22 +20,14 @@ function initializeApp(
   const app = express();
 
   const routesDirectory = join(moxxyConfig.servicesDirectory, name, 'routes/');
-  app.use('*', resolver(routesDirectory));
+  app.use('*', fileResolver(routesDirectory));
 
   if (proxy) {
-    app.use(
-      '*',
-      createProxyMiddleware({
-        target: proxy.host,
-        changeOrigin: true,
-      })
-    );
+    app.use('*', proxyResolver(proxy.host));
   }
 
   app.listen(port);
   console.log(`Listening on ${port}`);
-
-  return app;
 }
 
 async function loadServiceConfig(
@@ -48,6 +39,7 @@ async function loadServiceConfig(
 }
 
 async function startService(name: string, moxxyConfig: MoxxyConfig) {
+  console.log(`Starting service: ${name}`);
   const serviceConfig = await loadServiceConfig(
     name,
     moxxyConfig.servicesDirectory
