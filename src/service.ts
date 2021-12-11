@@ -23,7 +23,7 @@ function initializeApp(name: string, config: ServiceConfig, moxxyConfig: MoxxyCo
   }
 
   app.listen(port);
-  console.log(`Listening on ${port}`);
+  console.log(`${name} listening on port ${port}`);
 }
 
 async function loadServiceConfig(name: string, servicesDirectory: string): Promise<ServiceConfig> {

@@ -13,10 +13,10 @@ export function fileResolver(routesDirectory: string) {
     console.log(`Resolving ${method.toUpperCase()} ${baseUrl}`);
 
     const filepath = join(routesDirectory, `${baseUrl}.${method.toLowerCase()}.json`);
-    console.log({ filepath });
     const exists = await pathExists(filepath);
 
     if (exists) {
+      console.log(`Resolved to file ${filepath}`);
       res.send(await readJson(filepath));
     } else {
       next();
@@ -28,5 +28,8 @@ export function proxyResolver(host: string) {
   return createProxyMiddleware({
     target: host,
     changeOrigin: true,
+    onProxyReq: ({ host, path }) => {
+      console.log(`Resolving to ${host}${path}}`);
+    },
   });
 }
