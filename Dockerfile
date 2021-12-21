@@ -13,6 +13,7 @@ FROM node:17-alpine
 
 WORKDIR /moxxy
 
+COPY nodemon.json ./
 COPY --from=builder package.json package-lock.json ./
 RUN npm install --production
 
