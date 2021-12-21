@@ -2,6 +2,10 @@
   "name": "moxxy",
   "version": "0.0.1",
   "description": "Moxxy is a mock and a proxy for developing against APIs that may or may not exist.",
+  "repository": {
+    "url": "https://github.com/schmidlidev/moxxy.git",
+    "type": "git"
+  },
   "bin": {
     "moxxy": "dist/cli.js"
   },
