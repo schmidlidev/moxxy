@@ -1,7 +1,7 @@
 import express from 'express';
 import { readdir, readJSON } from 'fs-extra';
 import { join } from 'path';
-import { MoxxyConfig } from './config';
+import { moxxyConfig } from './config';
 import { fileResolver, proxyResolver } from './resolve';
 
 type ServiceConfig = {
@@ -11,11 +11,11 @@ type ServiceConfig = {
   };
 };
 
-function initializeApp(name: string, config: ServiceConfig, moxxyConfig: MoxxyConfig) {
+function initializeApp(name: string, config: ServiceConfig) {
   const { port, proxy } = config;
   const app = express();
 
-  const routesDirectory = join(moxxyConfig.servicesDirectory, name, 'routes/');
+  const routesDirectory = join(moxxyConfig.moxxyDir, name, 'routes/');
   app.use('*', fileResolver(routesDirectory));
 
   if (proxy) {
@@ -26,22 +26,22 @@ function initializeApp(name: string, config: ServiceConfig, moxxyConfig: MoxxyCo
   console.log(`${name} listening on port ${port}`);
 }
 
-async function loadServiceConfig(name: string, servicesDirectory: string): Promise<ServiceConfig> {
+async function loadServiceConfig(name: string): Promise<ServiceConfig> {
   // TODO: Validate config
-  return await readJSON(join(servicesDirectory, name, 'config.json'));
+  return await readJSON(join(moxxyConfig.moxxyDir, name, 'config.json'));
 }
 
-async function startService(name: string, moxxyConfig: MoxxyConfig) {
+async function startService(name: string) {
   console.log(`Starting service: ${name}`);
-  const serviceConfig = await loadServiceConfig(name, moxxyConfig.servicesDirectory);
+  const serviceConfig = await loadServiceConfig(name);
 
-  initializeApp(name, serviceConfig, moxxyConfig);
+  initializeApp(name, serviceConfig);
 }
 
-export async function startServices(config: MoxxyConfig) {
-  const serviceNames = await readdir(config.servicesDirectory);
+export async function startServices() {
+  const serviceNames = await readdir(moxxyConfig.moxxyDir);
 
   // Initialize services in parallel.
-  await Promise.all(serviceNames.map(async (name) => startService(name, config)));
+  await Promise.all(serviceNames.map(async (name) => startService(name)));
   console.log('Initialized services.');
 }

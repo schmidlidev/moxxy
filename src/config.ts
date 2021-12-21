@@ -1,9 +1,7 @@
-import { readJsonSync } from 'fs-extra';
+type MoxxyConfig = Readonly<{
+  moxxyDir: string;
+}>;
 
-export type MoxxyConfig = {
-  servicesDirectory: string;
+export const moxxyConfig: MoxxyConfig = {
+  moxxyDir: process.env.MOXXY_DIR ?? 'moxxy',
 };
-
-export function loadConfig(): MoxxyConfig {
-  return readJsonSync('moxxy.json');
-}
