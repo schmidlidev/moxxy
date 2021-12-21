@@ -1,14 +1,16 @@
 {
   "name": "moxxy",
-  "version": "1.0.0",
-  "description": "",
-  "main": "src/index.js",
+  "version": "0.0.1",
+  "description": "Moxxy is a mock and a proxy for developing against APIs that may or may not exist.",
+  "bin": {
+    "moxxy": "dist/cli.js"
+  },
   "scripts": {
-    "start": "nodemon dist/index.js",
-    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
+    "start": "nodemon dist/cli.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/cli.js\"",
     "build": "tsc"
   },
-  "author": "",
+  "author": "schmidlidev",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
