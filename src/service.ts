@@ -1,7 +1,6 @@
 import express from 'express';
 import { readdir, readJSON } from 'fs-extra';
 import { join } from 'path';
-import { moxxyConfig } from './config';
 import { fileResolver, proxyResolver } from './resolve';
 
 type ServiceConfig = {
@@ -11,11 +10,11 @@ type ServiceConfig = {
   };
 };
 
-function initializeApp(name: string, config: ServiceConfig) {
+function initializeApp(name: string, servicePath: string, config: ServiceConfig) {
   const { port, proxy } = config;
   const app = express();
 
-  const routesDirectory = join(moxxyConfig.moxxyDir, name, 'routes/');
+  const routesDirectory = join(servicePath, 'routes/');
   app.use('*', fileResolver(routesDirectory));
 
   if (proxy) {
@@ -26,22 +25,23 @@ function initializeApp(name: string, config: ServiceConfig) {
   console.log(`${name} listening on port ${port}`);
 }
 
-async function loadServiceConfig(name: string): Promise<ServiceConfig> {
+async function loadServiceConfig(servicePath: string): Promise<ServiceConfig> {
   // TODO: Validate config
-  return await readJSON(join(moxxyConfig.moxxyDir, name, 'config.json'));
+  return await readJSON(join(servicePath, 'config.json'));
 }
 
-async function startService(name: string) {
+async function startService(directory: string, name: string) {
   console.log(`Starting service: ${name}`);
-  const serviceConfig = await loadServiceConfig(name);
+  const servicePath = join(directory, name);
+  const serviceConfig = await loadServiceConfig(servicePath);
 
-  initializeApp(name, serviceConfig);
+  initializeApp(name, servicePath, serviceConfig);
 }
 
-export async function startServices() {
-  const serviceNames = await readdir(moxxyConfig.moxxyDir);
+export async function startServices(directory: string) {
+  const serviceNames = await readdir(directory);
 
   // Initialize services in parallel.
-  await Promise.all(serviceNames.map(async (name) => startService(name)));
+  await Promise.all(serviceNames.map(async (name) => startService(directory, name)));
   console.log('Initialized services.');
 }
