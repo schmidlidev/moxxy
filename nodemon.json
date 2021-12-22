@@ -1,4 +1,0 @@
-{
-  "watch": ["**/**/config.json"],
-  "ignore": ["routes/**/*"]
-}

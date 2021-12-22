@@ -7,4 +7,4 @@ With Moxxy you can mock responses to specific requests and proxy all other reque
 
 - Mock/Proxy multiple services simultaneously.
 - Dead simple configuration.
-- No-reload mock changes and Hot-reload config changes.
+- Change mock responses with no reload.
